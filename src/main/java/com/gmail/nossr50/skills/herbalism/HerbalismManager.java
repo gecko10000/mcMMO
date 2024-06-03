@@ -33,11 +33,13 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.CaveVinesPlant;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -77,6 +79,44 @@ public class HerbalismManager extends SkillManager {
                 && inventory.contains(Material.BROWN_MUSHROOM, 1)
                 && inventory.contains(Material.RED_MUSHROOM, 1)
                 && Permissions.isSubSkillEnabled(player, SubSkillType.HERBALISM_SHROOM_THUMB);
+    }
+
+    public void processGlowBerryHarvesting(@NotNull BlockState blockState) {
+        if (blockState.getType() != Material.CAVE_VINES && blockState.getType() != Material.CAVE_VINES_PLANT) return;
+        if (mmoPlayer.isDebugMode()) {
+            mmoPlayer.getPlayer().sendMessage("Processing cave vine rewards");
+        }
+        if (!(blockState.getBlockData() instanceof CaveVinesPlant vines)) return;
+        if (!vines.isBerries()) return;
+        int xpReward = ExperienceConfig.getInstance().getXp(PrimarySkillType.HERBALISM, blockState);
+        if (mmoPlayer.isDebugMode()) {
+            mmoPlayer.getPlayer().sendMessage("Cave vine XP: " + xpReward);
+        }
+        CheckVineAge checkVineAge = new CheckVineAge(blockState.getBlock(), mmoPlayer, xpReward);
+        mcMMO.p.getFoliaLib().getImpl().runAtLocationLater(blockState.getLocation(), checkVineAge, 1);
+    }
+
+    private class CheckVineAge extends CancellableRunnable {
+
+        @NotNull Block block;
+        @NotNull McMMOPlayer mmoPlayer;
+        int xpReward;
+
+        public CheckVineAge(@NotNull Block block, @NotNull McMMOPlayer mmoPlayer, int xpReward) {
+            this.block = block;
+            this.mmoPlayer = mmoPlayer;
+            this.xpReward = xpReward;
+        }
+
+        @Override
+        public void run() {
+            BlockState blockState = block.getState();
+
+            if (blockState.getType() != Material.CAVE_VINES && blockState.getType() != Material.CAVE_VINES_PLANT) return;
+            if(!(blockState.getBlockData() instanceof CaveVinesPlant vines)) return;
+            if (vines.isBerries()) return; // still berries, not harvested
+            applyXpGain(xpReward, XPGainReason.PVE, XPGainSource.SELF);
+        }
     }
 
     public void processBerryBushHarvesting(@NotNull BlockState blockState) {

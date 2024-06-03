@@ -880,6 +880,7 @@ public class PlayerListener implements Listener {
                         }
                     } else {
                         herbalismManager.processBerryBushHarvesting(blockState);
+                        herbalismManager.processGlowBerryHarvesting(blockState);
                     }
                 }
                 break;
