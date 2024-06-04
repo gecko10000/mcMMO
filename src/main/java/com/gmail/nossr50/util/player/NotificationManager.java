@@ -342,7 +342,7 @@ public class NotificationManager {
             int levelInterval = mcMMO.p.getGeneralConfig().getPowerLevelUpBroadcastInterval();
             int remainder = powerLevel % levelInterval;
 
-            if(remainder == 0) {
+            if((powerLevel != 9000 && remainder == 0) || powerLevel == 9001) {
                 //Grab appropriate audience
                 Audience audience = mcMMO.getAudiences().filter(getPowerLevelUpBroadcastPredicate(mmoPlayer.getPlayer()));
                 //TODO: Make prettier
