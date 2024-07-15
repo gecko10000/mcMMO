@@ -4,7 +4,7 @@ import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
 import com.gmail.nossr50.locale.LocaleLoader;
 import com.gmail.nossr50.mcMMO;
-import com.gmail.nossr50.runnables.commands.MctopCommandAsyncTask;
+import com.gmail.nossr50.runnables.commands.McTopCommandAsyncTask;
 import com.gmail.nossr50.util.MetadataConstants;
 import com.gmail.nossr50.util.Permissions;
 import com.gmail.nossr50.util.commands.CommandUtils;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MctopCommand implements TabExecutor {
+public class McTopCommand implements TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         PrimarySkillType skill = null;
@@ -44,6 +44,12 @@ public class MctopCommand implements TabExecutor {
                     return true;
                 }
 
+                // Check if the command is for Maces but the MC version is not correct
+                if (skill == PrimarySkillType.MACES
+                        && !mcMMO.getCompatibilityManager().getMinecraftGameVersion().isAtLeast(1, 21, 0)) {
+                    return true;
+                }
+
                 display(1, skill, sender, command);
                 return true;
 
@@ -55,6 +61,12 @@ public class MctopCommand implements TabExecutor {
                 skill = extractSkill(sender, args[0]);
 
                 if (skill == null) {
+                    return true;
+                }
+
+                // Check if the command is for Maces but the MC version is not correct
+                if (skill == PrimarySkillType.MACES
+                        && !mcMMO.getCompatibilityManager().getMinecraftGameVersion().isAtLeast(1, 21, 0)) {
                     return true;
                 }
 
@@ -115,7 +127,7 @@ public class MctopCommand implements TabExecutor {
         boolean useBoard = (sender instanceof Player) && (mcMMO.p.getGeneralConfig().getTopUseBoard());
         boolean useChat = !useBoard || mcMMO.p.getGeneralConfig().getTopUseChat();
 
-        mcMMO.p.getFoliaLib().getImpl().runAsync(new MctopCommandAsyncTask(page, skill, sender, useBoard, useChat));
+        mcMMO.p.getFoliaLib().getImpl().runAsync(new McTopCommandAsyncTask(page, skill, sender, useBoard, useChat));
     }
 
     private PrimarySkillType extractSkill(CommandSender sender, String skillName) {

@@ -1,22 +1,16 @@
 package com.gmail.nossr50.util;
 
-import com.gmail.nossr50.api.ItemSpawnReason;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
-import com.gmail.nossr50.events.items.McMMOItemSpawnEvent;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.runnables.player.PlayerProfileLoadingTask;
 import com.gmail.nossr50.util.player.UserManager;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
@@ -106,149 +100,6 @@ public final class Misc {
         return blockState.getLocation().add(0.5, 0.5, 0.5);
     }
 
-    public static void spawnItemsFromCollection(@NotNull Player player, @NotNull Location location, @NotNull Collection<ItemStack> drops, @NotNull ItemSpawnReason itemSpawnReason) {
-        for (ItemStack drop : drops) {
-            spawnItem(player, location, drop, itemSpawnReason);
-        }
-    }
-
-    /**
-     * Drops only the first n items in a collection
-     * Size should always be a positive integer above 0
-     *
-     * @param location target drop location
-     * @param drops collection to iterate over
-     * @param sizeLimit the number of drops to process
-     */
-    public static void spawnItemsFromCollection(@Nullable Player player, @NotNull Location location, @NotNull Collection<ItemStack> drops, @NotNull ItemSpawnReason itemSpawnReason, int sizeLimit) {
-        ItemStack[] arrayDrops = drops.toArray(new ItemStack[0]);
-
-        for(int i = 0; i < sizeLimit-1; i++) {
-            spawnItem(player, location, arrayDrops[i], itemSpawnReason);
-        }
-    }
-
-    /**
-     * Drop items at a given location.
-     *
-     * @param location The location to drop the items at
-     * @param is The items to drop
-     * @param quantity The amount of items to drop
-     */
-    public static void spawnItems(@Nullable Player player, @NotNull Location location, @NotNull ItemStack is, int quantity, @NotNull ItemSpawnReason itemSpawnReason) {
-        for (int i = 0; i < quantity; i++) {
-            spawnItem(player, location, is, itemSpawnReason);
-        }
-    }
-
-    /**
-     * Drop an item at a given location.
-     *
-     * @param location The location to drop the item at
-     * @param itemStack The item to drop
-     * @param itemSpawnReason the reason for the item drop
-     * @return Dropped Item entity or null if invalid or cancelled
-     */
-    public static @Nullable Item spawnItem(@Nullable Player player, @NotNull Location location, @NotNull ItemStack itemStack, @NotNull ItemSpawnReason itemSpawnReason) {
-        if (itemStack.getType() == Material.AIR || location.getWorld() == null) {
-            return null;
-        }
-
-        // We can't get the item until we spawn it and we want to make it cancellable, so we have a custom event.
-        McMMOItemSpawnEvent event = new McMMOItemSpawnEvent(location, itemStack, itemSpawnReason, player);
-        mcMMO.p.getServer().getPluginManager().callEvent(event);
-
-        if (event.isCancelled()) {
-            return null;
-        }
-
-        return location.getWorld().dropItem(location, itemStack);
-    }
-
-    /**
-     * Drop an item at a given location.
-     *
-     * @param location The location to drop the item at
-     * @param itemStack The item to drop
-     * @param itemSpawnReason the reason for the item drop
-     * @return Dropped Item entity or null if invalid or cancelled
-     */
-    public static @Nullable Item spawnItemNaturally(@Nullable Player player, @NotNull Location location, @NotNull ItemStack itemStack, @NotNull ItemSpawnReason itemSpawnReason) {
-        if (itemStack.getType() == Material.AIR || location.getWorld() == null) {
-            return null;
-        }
-
-        // We can't get the item until we spawn it and we want to make it cancellable, so we have a custom event.
-        McMMOItemSpawnEvent event = new McMMOItemSpawnEvent(location, itemStack, itemSpawnReason, player);
-        mcMMO.p.getServer().getPluginManager().callEvent(event);
-
-        if (event.isCancelled()) {
-            return null;
-        }
-
-        return location.getWorld().dropItemNaturally(location, itemStack);
-    }
-
-    /**
-     * Drop items at a given location.
-     *
-     * @param fromLocation The location to drop the items at
-     * @param is The items to drop
-     * @param speed the speed that the item should travel
-     * @param quantity The amount of items to drop
-     */
-    public static void spawnItemsTowardsLocation(@Nullable Player player, @NotNull Location fromLocation, @NotNull Location toLocation, @NotNull ItemStack is, int quantity, double speed, @NotNull ItemSpawnReason itemSpawnReason) {
-        for (int i = 0; i < quantity; i++) {
-            spawnItemTowardsLocation(player, fromLocation, toLocation, is, speed, itemSpawnReason);
-        }
-    }
-
-    /**
-     * Drop an item at a given location.
-     * This method is fairly expensive as it creates clones of everything passed to itself since they are mutable objects
-     *
-     * @param fromLocation The location to drop the item at
-     * @param toLocation The location the item will travel towards
-     * @param itemToSpawn The item to spawn
-     * @param speed the speed that the item should travel
-     * @return Dropped Item entity or null if invalid or cancelled
-     */
-    public static @Nullable Item spawnItemTowardsLocation(@Nullable Player player, @NotNull Location fromLocation, @NotNull Location toLocation, @NotNull ItemStack itemToSpawn, double speed, @NotNull ItemSpawnReason itemSpawnReason) {
-        if (itemToSpawn.getType() == Material.AIR) {
-            return null;
-        }
-
-        //Work with fresh copies of everything
-        ItemStack clonedItem = itemToSpawn.clone();
-        Location spawnLocation = fromLocation.clone();
-        Location targetLocation = toLocation.clone();
-
-        if(spawnLocation.getWorld() == null)
-            return null;
-
-        // We can't get the item until we spawn it and we want to make it cancellable, so we have a custom event.
-        McMMOItemSpawnEvent event = new McMMOItemSpawnEvent(spawnLocation, clonedItem, itemSpawnReason, player);
-        mcMMO.p.getServer().getPluginManager().callEvent(event);
-
-        //Something cancelled the event so back out
-        if (event.isCancelled()) {
-            return null;
-        }
-
-        //Use the item from the event
-        Item spawnedItem = spawnLocation.getWorld().dropItem(spawnLocation, clonedItem);
-        Vector vecFrom = spawnLocation.clone().toVector().clone();
-        Vector vecTo = targetLocation.clone().toVector().clone();
-
-        //Vector which is pointing towards out target location
-        Vector direction = vecTo.subtract(vecFrom).normalize();
-
-        //Modify the speed of the vector
-        direction = direction.multiply(speed);
-        spawnedItem.setVelocity(direction);
-        return spawnedItem;
-    }
-
     public static void profileCleanup(@NotNull String playerName) {
         Player player = mcMMO.p.getServer().getPlayerExact(playerName);
 
@@ -318,7 +169,7 @@ public final class Misc {
 //    }
 
     public static void spawnExperienceOrb(@NotNull Location location, int experienceValue) {
-        if(location.getWorld() == null)
+        if (location.getWorld() == null)
             return;
 
         ExperienceOrb experienceOrb = (ExperienceOrb) location.getWorld().spawnEntity(location, EntityType.EXPERIENCE_ORB);
@@ -336,7 +187,7 @@ public final class Misc {
 
         @Override
         public void run() {
-            if(location == null || location.getWorld() == null)
+            if (location == null || location.getWorld() == null)
                 return;
 
             ExperienceOrb experienceOrb = (ExperienceOrb) location.getWorld().spawnEntity(location, EntityType.EXPERIENCE_ORB);
@@ -352,7 +203,7 @@ public final class Misc {
 //
 //        double win = 0, loss = 0;
 //        for(int x = 0; x < iterations; x++) {
-//            if(RandomChanceUtil.checkRandomChanceExecutionSuccess(normalPlayer.getPlayer(), SubSkillType.MINING_MOTHER_LODE, true)) {
+//            if (RandomChanceUtil.checkRandomChanceExecutionSuccess(normalPlayer.getPlayer(), SubSkillType.MINING_MOTHER_LODE, true)) {
 //                win++;
 //            } else {
 //                loss++;

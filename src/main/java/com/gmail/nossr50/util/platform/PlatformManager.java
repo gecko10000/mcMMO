@@ -72,30 +72,24 @@ public class PlatformManager {
 
     //TODO: Rewrite this properly once we actually support a not-bukkit platform
     private @NotNull ServerSoftwareType determinePlatformType() {
-        if(Bukkit.getVersion().toLowerCase(Locale.ENGLISH).contains("paper"))
+        if (Bukkit.getVersion().toLowerCase(Locale.ENGLISH).contains("paper"))
             return ServerSoftwareType.PAPER;
-        else if(Bukkit.getVersion().toLowerCase(Locale.ENGLISH).contains("spigot"))
+        else if (Bukkit.getVersion().toLowerCase(Locale.ENGLISH).contains("spigot"))
             return ServerSoftwareType.SPIGOT;
         else
             return ServerSoftwareType.CRAFT_BUKKIT;
     }
 
-    public ServerSoftwareType getServerSoftware()
-    {
+    public ServerSoftwareType getServerSoftware() {
         return platform.getServerSoftwareType();
     }
 
-    public String getServerSoftwareStr()
-    {
-        switch(getServerSoftware())
-        {
-            case PAPER:
-                return "Paper";
-            case SPIGOT:
-                return "Spigot";
-            default:
-                return "CraftBukkit";
-        }
+    public String getServerSoftwareStr() {
+        return switch (getServerSoftware()) {
+            case PAPER -> "Paper";
+            case SPIGOT -> "Spigot";
+            default -> "CraftBukkit";
+        };
     }
 
     public @Nullable CompatibilityManager getCompatibilityManager() {

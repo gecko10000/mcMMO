@@ -16,10 +16,10 @@ public enum SoundType {
     BLEED,
     GLASS,
     ITEM_CONSUMED,
+    CRIPPLE,
     TIRED;
 
-    public boolean usesCustomPitch()
-    {
+    public boolean usesCustomPitch() {
         switch(this){
             case POP:
             case FIZZ:

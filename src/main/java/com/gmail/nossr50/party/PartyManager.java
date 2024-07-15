@@ -243,7 +243,7 @@ public final class PartyManager {
         }
 
         final McMMOPlayer mmoPlayer = UserManager.getPlayer(player);
-        if(mmoPlayer == null)
+        if (mmoPlayer == null)
             return null;
 
         return mmoPlayer.getParty();
@@ -310,6 +310,7 @@ public final class PartyManager {
      * @param party The party to remove
      * @deprecated Use {@link #disbandParty(McMMOPlayer, Party)}
      */
+    @Deprecated
     public void disbandParty(@NotNull Party party) {
         requireNonNull(party, "party cannot be null!");
         disbandParty(null, party);

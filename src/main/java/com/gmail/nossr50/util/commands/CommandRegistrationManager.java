@@ -32,88 +32,47 @@ public final class CommandRegistrationManager {
     private static final String permissionsMessage = LocaleLoader.getString("mcMMO.NoPermission");
 
     private static void registerSkillCommands() {
-        for (PrimarySkillType skill : PrimarySkillType.values()) {
-            String commandName = skill.toString().toLowerCase(Locale.ENGLISH);
-            String localizedName = mcMMO.p.getSkillTools().getLocalizedSkillName(skill).toLowerCase(Locale.ENGLISH);
+        for (PrimarySkillType primarySkillType : PrimarySkillType.values()) {
+            if (primarySkillType == PrimarySkillType.MACES
+                    && !mcMMO.getCompatibilityManager().getMinecraftGameVersion().isAtLeast(1, 21, 0)) {
+                continue;
+            }
 
-            PluginCommand command;
+            final String commandName = primarySkillType.toString().toLowerCase(Locale.ENGLISH);
+            final String localizedName = mcMMO.p.getSkillTools().getLocalizedSkillName(primarySkillType).toLowerCase(Locale.ENGLISH);
 
-            command = mcMMO.p.getCommand(commandName);
+            final PluginCommand command = mcMMO.p.getCommand(commandName);
+            if (command == null) {
+                mcMMO.p.getLogger().severe("Command not found: " + commandName);
+                continue;
+            }
+
             command.setDescription(LocaleLoader.getString("Commands.Description.Skill", StringUtils.getCapitalized(localizedName)));
             command.setPermission("mcmmo.commands." + commandName);
             command.setPermissionMessage(permissionsMessage);
             command.setUsage(LocaleLoader.getString("Commands.Usage.0", commandName));
             command.setUsage(command.getUsage() + "\n" + LocaleLoader.getString("Commands.Usage.2", commandName, "?", "[" + LocaleLoader.getString("Commands.Usage.Page") + "]"));
 
-            switch (skill) {
-                case ACROBATICS:
-                    command.setExecutor(new AcrobaticsCommand());
-                    break;
-
-                case ALCHEMY:
-                    command.setExecutor(new AlchemyCommand());
-                    break;
-
-                case ARCHERY:
-                    command.setExecutor(new ArcheryCommand());
-                    break;
-
-                case AXES:
-                    command.setExecutor(new AxesCommand());
-                    break;
-                case CROSSBOWS:
-                    command.setExecutor(new CrossbowsCommand());
-                    break;
-
-                case EXCAVATION:
-                    command.setExecutor(new ExcavationCommand());
-                    break;
-
-                case FISHING:
-                    command.setExecutor(new FishingCommand());
-                    break;
-
-                case HERBALISM:
-                    command.setExecutor(new HerbalismCommand());
-                    break;
-
-                case MINING:
-                    command.setExecutor(new MiningCommand());
-                    break;
-
-                case REPAIR:
-                    command.setExecutor(new RepairCommand());
-                    break;
-
-                case SALVAGE:
-                    command.setExecutor(new SalvageCommand());
-                    break;
-
-                case SMELTING:
-                    command.setExecutor(new SmeltingCommand());
-                    break;
-
-                case SWORDS:
-                    command.setExecutor(new SwordsCommand());
-                    break;
-
-                case TAMING:
-                    command.setExecutor(new TamingCommand());
-                    break;
-                case TRIDENTS:
-                    command.setExecutor(new TridentsCommand());
-                    break;
-
-                case UNARMED:
-                    command.setExecutor(new UnarmedCommand());
-                    break;
-
-                case WOODCUTTING:
-                    command.setExecutor(new WoodcuttingCommand());
-                    break;
-
-                default:
-                    break;
+            switch (primarySkillType) {
+                case ACROBATICS -> command.setExecutor(new AcrobaticsCommand());
+                case ALCHEMY -> command.setExecutor(new AlchemyCommand());
+                case ARCHERY -> command.setExecutor(new ArcheryCommand());
+                case AXES -> command.setExecutor(new AxesCommand());
+                case CROSSBOWS -> command.setExecutor(new CrossbowsCommand());
+                case EXCAVATION -> command.setExecutor(new ExcavationCommand());
+                case FISHING -> command.setExecutor(new FishingCommand());
+                case HERBALISM -> command.setExecutor(new HerbalismCommand());
+                case MACES -> command.setExecutor(new MacesCommand());
+                case MINING -> command.setExecutor(new MiningCommand());
+                case REPAIR -> command.setExecutor(new RepairCommand());
+                case SALVAGE -> command.setExecutor(new SalvageCommand());
+                case SMELTING -> command.setExecutor(new SmeltingCommand());
+                case SWORDS -> command.setExecutor(new SwordsCommand());
+                case TAMING -> command.setExecutor(new TamingCommand());
+                case TRIDENTS -> command.setExecutor(new TridentsCommand());
+                case UNARMED -> command.setExecutor(new UnarmedCommand());
+                case WOODCUTTING -> command.setExecutor(new WoodcuttingCommand());
+                default -> throw new IllegalStateException("Unexpected value: " + primarySkillType);
             }
         }
     }
@@ -256,7 +215,7 @@ public final class CommandRegistrationManager {
         command.setPermission("mcmmo.commands.mcrank;mcmmo.commands.mcrank.others;mcmmo.commands.mcrank.others.far;mcmmo.commands.mcrank.others.offline");
         command.setPermissionMessage(permissionsMessage);
         command.setUsage(LocaleLoader.getString("Commands.Usage.1", "mcrank", "[" + LocaleLoader.getString("Commands.Usage.Player") + "]"));
-        command.setExecutor(new McrankCommand());
+        command.setExecutor(new McRankCommand());
     }
 
     private static void registerMcstatsCommand() {
@@ -274,7 +233,7 @@ public final class CommandRegistrationManager {
         command.setPermission("mcmmo.commands.mctop"); // Only need the main one, not the individual skill ones
         command.setPermissionMessage(permissionsMessage);
         command.setUsage(LocaleLoader.getString("Commands.Usage.2", "mctop", "[" + LocaleLoader.getString("Commands.Usage.Skill") + "]", "[" + LocaleLoader.getString("Commands.Usage.Page") + "]"));
-        command.setExecutor(new MctopCommand());
+        command.setExecutor(new McTopCommand());
     }
 
     private static void registerMcpurgeCommand() {

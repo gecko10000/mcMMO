@@ -9,6 +9,7 @@ import com.gmail.nossr50.datatypes.skills.SubSkillType;
 import com.gmail.nossr50.datatypes.treasure.ExcavationTreasure;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.skills.SkillManager;
+import com.gmail.nossr50.util.ItemUtils;
 import com.gmail.nossr50.util.Misc;
 import com.gmail.nossr50.util.Permissions;
 import com.gmail.nossr50.util.random.ProbabilityUtil;
@@ -46,7 +47,8 @@ public class ExcavationManager extends SkillManager {
 
                 for (ExcavationTreasure treasure : treasures) {
                     if (skillLevel >= treasure.getDropLevel()
-                            && ProbabilityUtil.isStaticSkillRNGSuccessful(PrimarySkillType.EXCAVATION, getPlayer(), treasure.getDropProbability())) {
+                            && ProbabilityUtil.isStaticSkillRNGSuccessful(
+                                    PrimarySkillType.EXCAVATION, mmoPlayer, treasure.getDropProbability())) {
                         processExcavationBonusesOnBlock(blockState, treasure, location);
                     }
                 }
@@ -65,13 +67,14 @@ public class ExcavationManager extends SkillManager {
     @VisibleForTesting
     public void processExcavationBonusesOnBlock(BlockState blockState, ExcavationTreasure treasure, Location location) {
         //Spawn Vanilla XP orbs if a dice roll succeeds
-        if(ProbabilityUtil.isStaticSkillRNGSuccessful(PrimarySkillType.EXCAVATION, getPlayer(), getArchaelogyExperienceOrbChance())) {
+        if (ProbabilityUtil.isStaticSkillRNGSuccessful(
+                PrimarySkillType.EXCAVATION, mmoPlayer, getArchaelogyExperienceOrbChance())) {
             Misc.spawnExperienceOrb(location, getExperienceOrbsReward());
         }
 
         int xp = 0;
         xp += treasure.getXp();
-        Misc.spawnItem(getPlayer(), location, treasure.getDrop(), ItemSpawnReason.EXCAVATION_TREASURE);
+        ItemUtils.spawnItem(getPlayer(), location, treasure.getDrop(), ItemSpawnReason.EXCAVATION_TREASURE);
         if (xp > 0) {
             applyXpGain(xp, XPGainReason.PVE, XPGainSource.SELF);
         }
@@ -89,8 +92,7 @@ public class ExcavationManager extends SkillManager {
         return RankUtils.getRank(getPlayer(), SubSkillType.EXCAVATION_ARCHAEOLOGY);
     }
 
-    public void printExcavationDebug(Player player, BlockState blockState)
-    {
+    public void printExcavationDebug(Player player, BlockState blockState) {
         if (Permissions.isSubSkillEnabled(getPlayer(), SubSkillType.EXCAVATION_ARCHAEOLOGY)) {
             List<ExcavationTreasure> treasures = Excavation.getTreasures(blockState);
 

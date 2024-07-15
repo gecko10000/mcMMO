@@ -17,6 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -68,7 +70,8 @@ class WoodcuttingTest extends MMOTestEnvironment {
         // wire block
         Mockito.when(blockState.getBlock()).thenReturn(block);
 
-        Mockito.when(blockState.getBlock().getDrops(any())).thenReturn(null);
+        // return empty collection if ItemStack
+        Mockito.when(blockState.getBlock().getDrops(any())).thenReturn(Collections.emptyList());
         Mockito.when(blockState.getType()).thenReturn(Material.OAK_LOG);
         woodcuttingManager.processBonusDropCheck(blockState);
 
