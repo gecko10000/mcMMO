@@ -31,12 +31,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static com.gmail.nossr50.util.ItemUtils.isPickaxe;
 
 public class MiningManager extends SkillManager {
 
     public static final String BUDDING_AMETHYST = "budding_amethyst";
+    public static final Collection<Material> BLAST_MINING_BLACKLIST = Set.of(Material.SPAWNER);
 
     public MiningManager(@NotNull McMMOPlayer mcMMOPlayer) {
         super(mcMMOPlayer, PrimarySkillType.MINING);
@@ -142,7 +144,9 @@ public class MiningManager extends SkillManager {
         Block targetBlock = player.getTargetBlock(BlockUtils.getTransparentBlocks(), BlastMining.MAXIMUM_REMOTE_DETONATION_DISTANCE);
 
         //Blast mining cooldown check needs to be first so the player can be messaged
-        if (!blastMiningCooldownOver() || targetBlock.getType() != Material.TNT || !EventUtils.simulateBlockBreak(targetBlock, player)) {
+        if (!blastMiningCooldownOver()
+                || targetBlock.getType() != Material.TNT
+                || !EventUtils.simulateBlockBreak(targetBlock, player)) {
             return;
         }
 
@@ -223,13 +227,14 @@ public class MiningManager extends SkillManager {
                             ? blockState.getBlock().getDrops(mmoPlayer.getPlayer().getInventory().getItemInMainHand())
                             : List.of(new ItemStack(blockState.getType()));
                     ItemUtils.spawnItems(getPlayer(), Misc.getBlockCenter(blockState),
-                            oreDrops, ItemSpawnReason.BLAST_MINING_ORES);
+                            oreDrops, BLAST_MINING_BLACKLIST, ItemSpawnReason.BLAST_MINING_ORES);
 
                     if (mcMMO.p.getAdvancedConfig().isBlastMiningBonusDropsEnabled()) {
                         for (int i = 1; i < dropMultiplier; i++) {
                             ItemUtils.spawnItems(getPlayer(),
                                     Misc.getBlockCenter(blockState),
                                     oreDrops,
+                                    BLAST_MINING_BLACKLIST,
                                     ItemSpawnReason.BLAST_MINING_ORES_BONUS_DROP);
                         }
                     }

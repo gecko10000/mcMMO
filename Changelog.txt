@@ -1,3 +1,14 @@
+Version 2.2.018
+    Fixed a probability bug where certain skills would max out in chance to succeed well before they were supposed to (such as Dodge)
+    Blast Mining will no longer drop mob spawners (see notes)
+    (Codebase) Added more unit tests for Probability and RNG
+    The Herbalism XP gained when breaking certain plants that can grow unnaturally tall vertically (bamboo, kelp) is now capped to the most it could give when naturally grown, this can be disabled in experience.yml
+    Added 'ExploitFix.LimitTallPlantFarming' to experience.yml
+
+    NOTES:
+    This probability bug was a big oopsie and showed a gap in unit test coverage, I've added that coverage and a bug like this in theory shouldn't happen again.
+    In a future version I will add configuration for admins to control what blocks are not allowed to be dropped by blast mining.
+    A setting has been added to disable player-created super tall plants from giving full XP, this is on by default, you can tun it off in experience.yml via 'ExploitFix.LimitTallPlantFarming'
 Version 2.2.017
     Fixed a bug with default Mace permissions (thanks SrBedrock)
     Fixed Blast Mining being almost completely broken
@@ -12,7 +23,7 @@ Version 2.2.017
     NOTES:
     If Mace skills weren't working for your players before and you were scratching your head wondering why, this should fix it (thanks SrBedrock).
     Skills.General.Attack_Cooldown.Adjust_Skills_For_Attack_Cooldown is a new setting in advanced.yml that will allow you to ignore attack cooldowns for the combat skills.
-    When a player spams an attack, have a reduced amount of bonus damage from mcMMO and reduced chance for chance-on-hit subskills to activate.
+    When a player spams an attack, they have a reduced amount of bonus damage from mcMMO and reduced chance for chance-on-hit subskills to activate.
     You can have mcMMO ignore this value and apply full bonus damage and full chance to proc abilities by setting this to false.
 
 Version 2.2.016
