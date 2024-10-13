@@ -92,6 +92,8 @@ public class SmeltingManager extends SkillManager {
      * @return the vanilla XP multiplier
      */
     public int getVanillaXpMultiplier() {
-        return Math.max(1, RankUtils.getRank(getPlayer(), SubSkillType.SMELTING_UNDERSTANDING_THE_ART));
+        int rank = RankUtils.getRank(getPlayer(), SubSkillType.SMELTING_UNDERSTANDING_THE_ART);
+        int multiplier = mcMMO.p.getAdvancedConfig().getUnderstandingTheArtMultiplier(rank);
+        return Math.max(1, multiplier);
     }
 }

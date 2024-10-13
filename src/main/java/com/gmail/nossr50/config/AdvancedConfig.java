@@ -948,4 +948,9 @@ public class AdvancedConfig extends BukkitConfig {
         String root = "Skills.Maces.Cripple.Chance_To_Apply_On_Hit.Rank_";
         return config.getDouble(root + rank, defaultCrippleValues[rank-1]);
     }
+
+    public int getUnderstandingTheArtMultiplier(int rank) {
+        String root = "Skills.Smelting.VanillaXPMultiplier.Rank_";
+        return config.getInt(root + rank, 1);
+    }
 }
